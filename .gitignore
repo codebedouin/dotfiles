@@ -2,3 +2,6 @@
 .AppleDouble
 .LSOverride
 .vscode
+
+# Ignore tmux plugins (managed by TPM)
+tmux/.tmux/plugins/
