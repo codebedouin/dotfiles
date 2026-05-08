@@ -43,6 +43,9 @@ export PATH="$HOME/.cargo/bin:$PATH"
 # postgresql
 export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
 
+# mcat
+export MCAT_THEME="catppuccin"
+
 # starship
 eval "$(starship init bash)"
 
