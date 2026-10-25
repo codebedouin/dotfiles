@@ -1,47 +1,73 @@
 # Dotfiles
 
-This repository contains my dotfiles, which are configuration files for various programs and tools that I use on my system. I manage these dotfiles using GNU Stow, a symlink farm manager, which helps me organize and deploy these configurations across different machines easily.
+Configuration files for the tools I use on macOS, managed with [GNU Stow](https://www.gnu.org/software/stow/). Each top-level directory is a Stow package that mirrors the layout of `$HOME`.
+
+## Packages
+
+| Package | Contents |
+|---|---|
+| `aerospace` | AeroSpace window manager |
+| `bash_aliases` | Shell aliases |
+| `bashrc` | `.bashrc` and `.bash_profile` |
+| `bat` | bat config and Catppuccin theme |
+| `btop` | btop config |
+| `ghostty` | Ghostty terminal |
+| `git` | Shared Git settings in `~/.config/git/config` |
+| `hushlogin` | Silences the login banner |
+| `nvim` | Neovim configuration (lazy.nvim) |
+| `starship` | Starship prompt |
+| `tmux` | tmux config (TPM plugins) |
+| `yazi` | Yazi theme |
+
+`wallpapers` is not a Stow package.
 
 ## Installation
 
-To deploy these dotfiles on your system:
+1. Install [Homebrew](https://brew.sh), then clone the repository and install the tools:
 
-1. Clone this repository to your home directory:
    ```bash
-   git clone https://github.com/mxsaad/dotfiles.git ~/dotfiles
-   ```
-
-2. Navigate to the cloned repository:
-   ```bash
+   git clone https://github.com/codebedouin/dotfiles.git ~/dotfiles
    cd ~/dotfiles
+   brew bundle
    ```
 
-3. Use GNU Stow to symlink the desired configurations. For example, to symlink the Bash and Vim configurations:
+2. Link the packages:
+
    ```bash
-   stow bash vim
+   stow aerospace bash_aliases bashrc bat btop ghostty git hushlogin nvim starship tmux yazi
    ```
 
-   Replace `bash` and `vim` with the names of the directories containing configurations you want to deploy.
+   To preview the changes first, add `-n -v`. To remove a package, use `stow -D <package>`.
 
-## Usage
+3. Create a machine-local Git config. It is not tracked, so it holds your identity and credential helpers:
 
-After symlinking the configurations using GNU Stow, the dotfiles will be effectively deployed on your system. Any changes made to these files within the repository will reflect on your system instantly.
+   ```ini
+   [user]
+     name = Your Name
+     email = you@example.com
+   ```
 
-To add new configurations or update existing ones:
+   Git reads `~/.config/git/config` (this repository) first and `~/.gitconfig` second, so values in `~/.gitconfig` take precedence. Tools such as `gh auth setup-git` write to `~/.gitconfig`, which keeps this repository clean.
 
-1. Add or modify the configuration files within the respective directories in the repository.
+4. Install the tmux plugin manager, then press `prefix + I` inside tmux:
 
-2. Re-run the `stow` command for the configurations you've updated:
    ```bash
-   stow bash vim
+   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
    ```
 
-   This will update the symlinks accordingly.
+5. Open Neovim and run `:Lazy restore`. Treesitter parsers and LSP tools install on first use. For Copilot inline completion, open a file and run `:LspCopilotSignIn` once.
 
-## Contributing
+The shell config loads `nvm`, `fzf`, `starship`, `zoxide` and `direnv` when present. `nvm` is installed separately from the Brewfile.
 
-Feel free to suggest improvements or contribute to this repository by opening issues or pull requests. Your feedback and contributions are highly appreciated!
+## Updating
+
+```bash
+git pull
+brew bundle
+```
+
+In Neovim, run `:Lazy restore` after pulling to match the committed `lazy-lock.json`, and `:Lazy clean` to remove plugins that are no longer used.
 
 ## License
 
-This repository is licensed under the [MIT License](LICENSE). Feel free to use and modify the configurations as you see fit.
+This repository is licensed under the [MIT License](LICENSE).

@@ -1,3 +1,1 @@
-if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
-fi
+[[ -r "$HOME/.bashrc" ]] && . "$HOME/.bashrc"
