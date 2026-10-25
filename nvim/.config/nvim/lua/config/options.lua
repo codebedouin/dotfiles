@@ -1,50 +1,39 @@
--- Relative line numbers
-vim.wo.number = true
-vim.wo.relativenumber = true
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
--- Hide command line (replace with Noice)
-vim.o.cmdheight = 0
+local o = vim.o
 
--- Sync clipboard between OS and Neovim
-vim.o.clipboard = 'unnamedplus'
+o.number = true
+o.relativenumber = true
+o.cmdheight = 0
+o.breakindent = true
+o.undofile = true
+o.ignorecase = true
+o.smartcase = true
+o.signcolumn = "yes"
+o.scrolloff = 8
+o.updatetime = 250
+o.timeoutlen = 300
+o.wrap = false
+o.tabstop = 2
+o.shiftwidth = 2
+o.expandtab = true
+o.splitright = true
+o.splitbelow = true
+o.cursorline = true
+o.inccommand = "split"
+o.confirm = true
+o.list = true
+o.listchars = "tab:» ,trail:·,nbsp:␣"
+o.winborder = "rounded"
 
--- Enable break indent
-vim.o.breakindent = true
- 
--- Disable netrw
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+vim.schedule(function()
+  o.clipboard = "unnamedplus"
+end)
 
--- Save undo history
-vim.o.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
--- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
-
--- Keep cursor centered
-vim.o.scrolloff = 999
-
--- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
-
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
-
--- Turn off line wrap
-vim.wo.wrap = false
-
--- Tab size
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.expandtab = true
-
--- Enable colors
-vim.o.termguicolors = true
-
--- vim: ts=2 sts=2 sw=2 et
-
+vim.diagnostic.config({
+  virtual_text = false,
+  severity_sort = true,
+  underline = { severity = { min = vim.diagnostic.severity.WARN } },
+  float = { border = "rounded", source = "if_many" },
+})
