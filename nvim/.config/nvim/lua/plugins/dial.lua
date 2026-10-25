@@ -1,180 +1,110 @@
 return {
-	"monaqa/dial.nvim",
-	keys = {
-		{
-			"<C-a>",
-			function()
-				return require("dial.map").inc_normal()
-			end,
-			expr = true,
-			desc = "Increment",
-			mode = "n",
-		},
-		{
-			"<C-x>",
-			function()
-				return require("dial.map").dec_normal()
-			end,
-			expr = true,
-			desc = "Decrement",
-			mode = "n",
-		},
-		{
-			"<C-a>",
-			function()
-				return require("dial.map").inc_visual()
-			end,
-			expr = true,
-			desc = "Increment",
-			mode = "v",
-		},
-		{
-			"<C-x>",
-			function()
-				return require("dial.map").dec_visual()
-			end,
-			expr = true,
-			desc = "Decrement",
-			mode = "v",
-		},
-	},
-	opts = function()
-		local augend = require("dial.augend")
+  "monaqa/dial.nvim",
+  keys = {
+    { "<C-a>", "<Plug>(dial-increment)", mode = { "n", "x" }, desc = "Increment" },
+    { "<C-x>", "<Plug>(dial-decrement)", mode = { "n", "x" }, desc = "Decrement" },
+    { "g<C-a>", "<Plug>(dial-g-increment)", mode = { "n", "x" }, desc = "Increment progressively" },
+    { "g<C-x>", "<Plug>(dial-g-decrement)", mode = { "n", "x" }, desc = "Decrement progressively" },
+  },
+  config = function()
+    local augend = require("dial.augend")
+    local augends = require("dial.config").augends
 
-		local logical_alias = augend.constant.new({
-			elements = { "&&", "||" },
-			word = false,
-			cyclic = true,
-		})
+    local decimal = augend.integer.alias.decimal
+    local bool = augend.constant.alias.bool
 
-		local ordinal_numbers = augend.constant.new({
-			elements = {
-				"first",
-				"second",
-				"third",
-				"fourth",
-				"fifth",
-				"sixth",
-				"seventh",
-				"eighth",
-				"ninth",
-				"tenth",
-			},
-			word = false,
-			cyclic = true,
-		})
+    local logical = augend.constant.new({
+      elements = { "&&", "||" },
+      word = false,
+      cyclic = true,
+    })
 
-		local weekdays = augend.constant.new({
-			elements = {
-				"Monday",
-				"Tuesday",
-				"Wednesday",
-				"Thursday",
-				"Friday",
-				"Saturday",
-				"Sunday",
-			},
-			word = true,
-			cyclic = true,
-		})
+    local ordinal_numbers = augend.constant.new({
+      elements = {
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+      },
+      word = false,
+      cyclic = true,
+    })
 
-		local months = augend.constant.new({
-			elements = {
-				"January",
-				"February",
-				"March",
-				"April",
-				"May",
-				"June",
-				"July",
-				"August",
-				"September",
-				"October",
-				"November",
-				"December",
-			},
-			word = true,
-			cyclic = true,
-		})
+    local months = augend.constant.new({
+      elements = {
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      },
+      word = true,
+      cyclic = true,
+    })
 
-		local capitalized_boolean = augend.constant.new({
-			elements = {
-				"True",
-				"False",
-			},
-			word = true,
-			cyclic = true,
-		})
+    local base = {
+      decimal,
+      augend.integer.alias.hex,
+      augend.date.alias["%Y/%m/%d"],
+      ordinal_numbers,
+      augend.constant.alias.en_weekday_full,
+      months,
+    }
 
-		return {
-			dials_by_ft = {
-				css = "css",
-				javascript = "typescript",
-				javascriptreact = "typescript",
-				json = "json",
-				lua = "lua",
-				markdown = "markdown",
-				python = "python",
-				sass = "css",
-				scss = "css",
-				typescript = "typescript",
-				typescriptreact = "typescript",
-				yaml = "yaml",
-			},
-			groups = {
-				default = {
-					augend.integer.alias.decimal, -- nonnegative decimal number (0, 1, 2, 3, ...)
-					augend.integer.alias.hex, -- nonnegative hex number  (0x01, 0x1a1f, etc.)
-					augend.date.alias["%Y/%m/%d"], -- date (2022/02/19, etc.)
-					ordinal_numbers,
-					weekdays,
-					months,
-				},
-				typescript = {
-					augend.integer.alias.decimal, -- nonnegative and negative decimal number
-					augend.constant.alias.bool, -- boolean value (true <-> false)
-					logical_alias,
-					augend.constant.new({ elements = { "let", "const" } }),
-				},
-				yaml = {
-					augend.integer.alias.decimal, -- nonnegative and negative decimal number
-					augend.constant.alias.bool, -- boolean value (true <-> false)
-				},
-				css = {
-					augend.integer.alias.decimal, -- nonnegative and negative decimal number
-					augend.hexcolor.new({
-						case = "lower",
-					}),
-					augend.hexcolor.new({
-						case = "upper",
-					}),
-				},
-				markdown = {
-					augend.misc.alias.markdown_header,
-				},
-				json = {
-					augend.integer.alias.decimal, -- nonnegative and negative decimal number
-					augend.semver.alias.semver, -- versioning (v1.1.2)
-				},
-				lua = {
-					augend.integer.alias.decimal, -- nonnegative and negative decimal number
-					augend.constant.alias.bool, -- boolean value (true <-> false)
-					augend.constant.new({
-						elements = { "and", "or" },
-						word = true, -- if false, "sand" is incremented into "sor", "doctor" into "doctand", etc.
-						cyclic = true, -- "or" is incremented into "and".
-					}),
-				},
-				python = {
-					augend.integer.alias.decimal, -- nonnegative and negative decimal number
-					capitalized_boolean,
-					logical_alias,
-				},
-			},
-		}
-	end,
-	config = function(_, opts)
-		require("dial.config").augends:register_group(opts.groups)
-		vim.g.dials_by_ft = opts.dials_by_ft
-	end,
+    local function with_base(extra)
+      return vim.list_extend(extra, base)
+    end
+
+    local typescript = function()
+      return with_base({
+        bool,
+        logical,
+        augend.constant.new({ elements = { "let", "const" } }),
+      })
+    end
+
+    local css = function()
+      return with_base({
+        augend.hexcolor.new({ case = "lower" }),
+        augend.hexcolor.new({ case = "upper" }),
+      })
+    end
+
+    augends:register_group({ default = base })
+
+    augends:on_filetype({
+      css = css(),
+      sass = css(),
+      scss = css(),
+      javascript = typescript(),
+      javascriptreact = typescript(),
+      typescript = typescript(),
+      typescriptreact = typescript(),
+      json = with_base({ augend.semver.alias.semver }),
+      lua = with_base({
+        bool,
+        augend.constant.new({
+          elements = { "and", "or" },
+          word = true,
+          cyclic = true,
+        }),
+      }),
+      markdown = with_base({ augend.misc.alias.markdown_header }),
+      python = with_base({ augend.constant.alias.Bool, logical }),
+      yaml = with_base({ bool }),
+    })
+  end,
 }

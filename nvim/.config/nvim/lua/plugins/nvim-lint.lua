@@ -1,20 +1,24 @@
 return {
-	"mfussenegger/nvim-lint",
-	events = { "BufWritePost", "BufReadPost", "InsertLeave" },
-	config = function()
-		require("lint").linters_by_ft = {
-			javascript = { "eslint_d" },
-			typescript = { "eslint_d" },
-			typescriptreact = { "eslint_d" },
-			javascriptreact = { "eslint_d" },
-			svelte = { "eslint_d" },
-			python = { "ruff" },
-		}
+  "mfussenegger/nvim-lint",
+  event = { "BufReadPre", "BufNewFile" },
+  config = function()
+    local lint = require("lint")
+    lint.linters_by_ft = {
+      javascript = { "eslint_d" },
+      typescript = { "eslint_d" },
+      typescriptreact = { "eslint_d" },
+      javascriptreact = { "eslint_d" },
+      svelte = { "eslint_d" },
+      python = { "ruff" },
+    }
 
-		vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave" }, {
-			callback = function()
-				require("lint").try_lint()
-			end,
-		})
-	end,
+    vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave" }, {
+      group = vim.api.nvim_create_augroup("UserLint", { clear = true }),
+      callback = function()
+        if vim.bo.modifiable then
+          lint.try_lint()
+        end
+      end,
+    })
+  end,
 }

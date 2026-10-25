@@ -1,12 +1,16 @@
 return {
-	"NvChad/nvim-colorizer.lua",
-	events = { "BufWritePost", "BufReadPost", "InsertLeave" },
-	opts = {
-		filetypes = { "*" },
-		user_default_options = {
-			css = true,
-			tailwind = true,
-			mode = "virtualtext",
-		},
-	},
+  "catgoose/nvim-colorizer.lua",
+  event = { "BufReadPre", "BufNewFile" },
+  opts = {
+    filetypes = { "*" },
+    options = {
+      parsers = {
+        css = true,
+        tailwind = { enable = true },
+      },
+      display = {
+        mode = "virtualtext",
+      },
+    },
+  },
 }

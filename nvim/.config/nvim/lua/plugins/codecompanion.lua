@@ -1,41 +1,25 @@
 return {
-	"olimorris/codecompanion.nvim",
-	dependencies = {
-		"nvim-lua/plenary.nvim",
-		"nvim-treesitter/nvim-treesitter",
-	},
-	opts = {
-		strategies = {
-			chat = {
-				adapter = "copilot",
-			},
-			inline = {
-				adapter = "copilot",
-			},
-			cmd = {
-				adapter = "copilot",
-			},
-		},
-		extensions = {
-			mcphub = {
-				callback = "mcphub.extensions.codecompanion",
-				opts = {
-					-- MCP Tools
-					make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
-					show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
-					add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
-					show_result_in_chat = true, -- Show tool results directly in chat buffer
-					format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
-					-- MCP Resources
-					make_vars = true, -- Convert MCP resources to #variables for prompts
-					-- MCP Prompts
-					make_slash_commands = true, -- Add MCP prompts as /slash commands
-				},
-			},
-		},
-	},
-	keys = {
-		{ "<leader>cc", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle [c]ode [c]ompanion" },
-		{ "<leader>ca", "<cmd>CodeCompanionActions", "Code [c]ompanion [a]ctions" },
-	},
+  "olimorris/codecompanion.nvim",
+  version = "^20.0.0",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "nvim-treesitter/nvim-treesitter",
+  },
+  cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionActions", "CodeCompanionCmd" },
+  keys = {
+    {
+      "<leader>ac",
+      "<cmd>CodeCompanionChat Toggle<cr>",
+      mode = { "n", "v" },
+      desc = "AI [c]hat toggle",
+    },
+    { "<leader>aa", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "AI [a]ctions" },
+  },
+  opts = {
+    interactions = {
+      inline = {
+        adapter = "copilot",
+      },
+    },
+  },
 }
