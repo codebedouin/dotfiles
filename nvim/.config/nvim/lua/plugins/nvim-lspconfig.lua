@@ -1,76 +1,75 @@
 return {
-	"neovim/nvim-lspconfig",
-	dependencies = {
-		{
-			"williamboman/mason.nvim",
-			config = true,
-			keys = { { "<leader>m", "<cmd>Mason<cr>", desc = "Open [m]ason" } },
-		},
-		{
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			opts = {
-				ensure_installed = { "stylua", "eslint_d", "prettier", "ruff" },
-			},
-		},
-		{
-			"williamboman/mason-lspconfig.nvim",
-			opts = {
-				ensure_installed = {
-					"lua_ls",
-					"ts_ls",
-					"jsonls",
-					"html",
-					"cssls",
-					"bashls",
-					"pyright",
-					"tailwindcss",
-					"svelte",
-				},
-				automatic_installation = true,
-				handlers = {
-					function(server_name) -- dynamically setup servers
-						require("lspconfig")[server_name].setup({
-							capabilities = require("cmp_nvim_lsp").default_capabilities(),
-						})
-					end,
-				},
-			},
-		},
-		"folke/neodev.nvim",
-		"j-hui/fidget.nvim",
-	},
-	config = function()
-		vim.api.nvim_create_autocmd("LspAttach", {
-			group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-			callback = function(ev)
-				-- Enable completion triggered by <c-x><c-o>
-				vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+  "neovim/nvim-lspconfig",
+  event = { "BufReadPre", "BufNewFile" },
+  dependencies = {
+    {
+      "mason-org/mason.nvim",
+      cmd = "Mason",
+      opts = {},
+      keys = { { "<leader>m", "<cmd>Mason<cr>", desc = "Open mason" } },
+    },
+    {
+      "mason-org/mason-lspconfig.nvim",
+      opts = {
+        ensure_installed = {
+          "lua_ls",
+          "ts_ls",
+          "jsonls",
+          "html",
+          "cssls",
+          "bashls",
+          "pyright",
+          "tailwindcss",
+          "svelte",
+          "gopls",
+          "copilot",
+        },
+        automatic_enable = { exclude = { "stylua", "ruff" } },
+      },
+    },
+    "saghen/blink.cmp",
+  },
+  config = function()
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+      callback = function(ev)
+        local client = vim.lsp.get_client_by_id(ev.data.client_id)
+        if not client then
+          return
+        end
 
-				local bufopts = function(description)
-					return { buffer = ev.buf, desc = description }
-				end
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buf = ev.buf, desc = desc })
+        end
 
-				-- Buffer local mappings.
-				vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts("Go to [D]eclaration"))
-				vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts("Go to [d]efinition"))
-				vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts("Show [K]eyword Popup"))
-				vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts("Go to [i]mplementation"))
-				vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts("Show signature help"))
-				vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, bufopts("Workspace [a]dd folder"))
-				vim.keymap.set(
-					"n",
-					"<leader>wr",
-					vim.lsp.buf.remove_workspace_folder,
-					bufopts("Workspace [r]emove folder")
-				)
-				vim.keymap.set("n", "<leader>wl", function()
-					print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-				end, bufopts("Workspace [l]ist folders"))
-				vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, bufopts("Go to type [D]efinition"))
-				vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, bufopts("Buffer [r]ename"))
-				vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, bufopts("List [c]ode [a]ctions"))
-				vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts("List [r]eferences"))
-			end,
-		})
-	end,
+        map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
+        map("n", "gd", vim.lsp.buf.definition, "Go to definition")
+        map("n", "<C-k>", vim.lsp.buf.signature_help, "Show signature help")
+        map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "Workspace add folder")
+        map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "Workspace remove folder")
+        map("n", "<leader>wl", function()
+          print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        end, "Workspace list folders")
+
+        if client:supports_method("textDocument/inlayHint", ev.buf) then
+          map("n", "<leader>ch", function()
+            vim.lsp.inlay_hint.enable(
+              not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
+              { bufnr = ev.buf }
+            )
+          end, "Toggle inlay hints")
+        end
+
+        if client:supports_method("textDocument/inlineCompletion", ev.buf) then
+          vim.lsp.inline_completion.enable(true, { bufnr = ev.buf })
+          map("i", "<M-n>", function()
+            vim.lsp.inline_completion.select({ count = 1 })
+          end, "Next inline completion")
+          map("i", "<M-p>", function()
+            vim.lsp.inline_completion.select({ count = -1 })
+          end, "Previous inline completion")
+        end
+      end,
+    })
+  end,
 }
